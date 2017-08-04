@@ -14,7 +14,60 @@
 
 \section{Concrete}
 \subsection{Rheology}
+
+Rheology is defined as study of the flow of a material under an applied shear stress. Developing an understanding of the rheological properties is therefore paramount when attempting to model a process requiring a flowable medium. A method for obtaining this understanding is presented herein.\\
+\newline
+\noindent
+\citet{Sperwall} like many other British and European standards refer to concrete in terms of 'workability' and 'consistence'; qualitative terms used to empirically describe the rheological properties of concrete. It is, however, accepted that although these terms are long-standing \citep{Tattersall83}, they may not be the most appropriate due to their subjectiveness. \citet{Tattersall90} presented the possibility of using a more quantitative approach to analysing concrete, namely the Bingham model, {\bfseries \ref{eq:bingham}}.
+\begin{equation}
+\tau = \mu\dot{\gamma}+\tau_0
+\label{eq:bingham}
+\end{equation}
+
+\noindent
+$\tau$ represents the shear stress $[Pa]$, $\mu$ represents plastic viscosity [Pa] and $\dot{\gamma}$ represents the shear rate $[s^-1]$. It is known that fresh tremie concrete at rest requires a force in order to initiate flow. This required shear stress to initiate flow can be termed yield stress, $\tau_0$. 
+\\
+\\
+\\
 \subsection{Concrete Tests}
+Tests determining the empirical properties of concrete are used substantially on-site with much credit given to the results; potentially leading to concrete batches being prevented from use. For concrete placement by tremie in submerged condition under support fluid, \citet{Sperwall} recommends the use of the 'slump-flow' test in accordance with \citeauthor{BS123508} as one way to measure of the consistence/flowablity of a concrete, ensuring it is workable enough for the tremie process.\\
+\newline
+\noindent
+\citet{wallevik06} criticises the use of using a single value workability test on the grounds that two concretes of different rheological parameters may produce the same result. An alternative approach is offered in the literature to draw physical quantities from these simple tests. \citet{roussel50} and \citet{wallevik06} attempt to correlate final slump measurements with the initial yield stress, using experimental results to derive equations; producing reliable results. Both papers however, neglect the impact of plastic viscosity on the final slump diameter. \citet{sofcf} state that at low shear stresses where the stopping and starting is of interest, such as a slump flow test, yield stress is the main contributing factor \citep{sofcf}.\\
+\newline
+\noindent
+\citet{wallevik06} concluded that no correlation between final slump and plastic viscosity could be confidently made. Conversely, \citet{TUM} observed the velocity at which the slump proceeds has a clear correlation with plastic viscosity. Thus, providing an investigative pathway to producing a reliable numerical model. By using experimentally derived parameters ($\mu$ \& $\tau_0$) as inputs, the resultant slump diameter and plastic viscosity can be cross referenced with expected values; validating the model.\\
+\newline
+One caveat to using a simple Bingham model is the neglection of the observed thixotropic effect of fresh tremie concrete. A thixotropic concrete has a reversible stiffening effect active when at rest \citep{EFFC}. As time increases, so does $\tau_0$. \citet{roussel06} offered a potential mathematical solution, a flocculation state $\lambda$ is incorporated into the existing Bingham model, {\bfseries \ref{eq:thix}}. Such that $A_{thix}$ is the re-structuration rate at rest ($0.1-2 Pa$) and $\alpha$ is the destruction parameter (typical values of the order $0.01$) {\bfseries \ref{eq:thixdt}}, \citet{roussel07}.
+\begin{equation}
+\tau = \mu\dot{\gamma}+(1+\lambda)\tau_0
+\label{eq:thix}
+\end{equation}
+
+\begin{equation}
+\therefore
+\frac{\partial \lambda}{\partial t}=\frac{A_{thix}}{\tau_0}-\alpha\lambda\dot{\gamma}
+\label{eq:thixdt}
+\end{equation}
+\noindent
+\citet{roussel07} observed that for time-scales relating to concrete testing, thixotropic effects are marginal. However when considering a pile-scale problem, they become increasingly important.\\
+\newline
+\noindent
+\citet{Sperwall} offer a range of concrete testing methods, designed to attribute a quantitative measurement to a traditionally empirical test. These range from tests designed to assess the 'passing ability' of concrete \citeauthor{BS1235010}, to those designed to measure segregation of concrete into its constituent materials \citeauthor{ASTMbleed}. Whilst these tests do not offer the level of information provided by the slump flow, they must not be neglected as there is still much to be gained by analysing how known test results compare with simulated.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \subsection{Concrete Simulations}
 \section{Numerical Modelling}
 \subsection{Modelling Method Comparisons}
