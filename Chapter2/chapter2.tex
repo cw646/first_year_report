@@ -33,7 +33,7 @@ $\tau$ represents the shear stress $[Pa]$, $\mu$ represents plastic viscosity [P
 Tests determining the empirical properties of concrete are used substantially on-site with much credit given to the results; potentially leading to concrete batches being prevented from use. For concrete placement by tremie in submerged condition under support fluid, \citet{Sperwall} recommends the use of the 'slump-flow' test in accordance with \citeauthor{BS123508} as one way to measure of the consistence/flowablity of a concrete, ensuring it is workable enough for the tremie process.\\
 \newline
 \noindent
-\citet{wallevik06} criticises the use of using a single value workability test on the grounds that two concretes of different rheological parameters may produce the same result. An alternative approach is offered in the literature to draw physical quantities from these simple tests. \citet{roussel50} and \citet{wallevik06} attempt to correlate final slump measurements with the initial yield stress, using experimental results to derive equations; producing reliable results. Both papers however, neglect the impact of plastic viscosity on the final slump diameter. \citet{sofcf} state that at low shear stresses where the stopping and starting is of interest, such as a slump flow test, yield stress is the main contributing factor \citep{sofcf}.\\
+\citet{wallevik06} criticises the use of using a single value workability test on the grounds that two concretes of different rheological parameters may produce the same result. An alternative approach is offered in the literature to draw physical quantities from these simple tests. \citet{roussel50} and \citet{wallevik06} attempt to correlate final slump measurements with the initial yield stress, using experimental results to derive equations; producing reliable results. Both papers however, neglect the impact of plastic viscosity on the final slump diameter. \citet{sofcf} state that at low shear stresses where the stopping and starting is of interest, such as a slump flow test, yield stress is the main contributing factor.\\
 \newline
 \noindent
 \citet{wallevik06} concluded that no correlation between final slump and plastic viscosity could be confidently made. Conversely, \citet{TUM} observed the velocity at which the slump proceeds has a clear correlation with plastic viscosity. Thus, providing an investigative pathway to producing a reliable numerical model. By using experimentally derived parameters ($\mu$ \& $\tau_0$) as inputs, the resultant slump diameter and plastic viscosity can be cross referenced with expected values; validating the model.\\
@@ -55,22 +55,91 @@ One caveat to using a simple Bingham model is the neglection of the observed thi
 \noindent
 \citet{Sperwall} offer a range of concrete testing methods, designed to attribute a quantitative measurement to a traditionally empirical test. These range from tests designed to assess the 'passing ability' of concrete \citeauthor{BS1235010}, to those designed to measure segregation of concrete into its constituent materials \citeauthor{ASTMbleed}. Whilst these tests do not offer the level of information provided by the slump flow, they must not be neglected as there is still much to be gained by analysing how known test results compare with simulated.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 \subsection{Concrete Simulations}
+\noindent
+Selecting a correct numerical method is tantamount to selecting a correct rheological representation. The early works of \citet{roussel07} lay the foundations for a more comprehensive review presented by \citet{sofcf} on the use of numerous possible methods for simulating concrete. This subsection aims to present the findings from both these reviews and of the surrounding literature in order to offer an informed decision on which method may be most suitable.\\
+\newline
+\noindent
+The review presented by \citet{roussel07} details the potential models to select from; the Finite Element Method (FEM), Computational Fluid Dynamics (CFD), the Discrete Element Method (DEM) and a variation of the Material Point Method (MPM). Each potential method categorised by the form in which the material is represented.  FEM and CFD offer single fluid representation, whilst DEM offers a particulate representation. The version of MPM presented is able to represent concrete as a set of particles suspended in a fluid \citep{dufour05}.\\
+\newline
+\noindent
+Ostensibly, CFD appears to be an appropriate choice; economic computational speed and ability to use pre-developed software capable of modelling thixotropic conditions with ease. However, as stated in the problem definition of this report, there is a need to represent concrete as more than just a single-fluid; Segregation and bleed are high priority issues. As \citet{gram2011} suggest, CFD is most appropriate for simulating a broad overview. FEM suffers the same pitfalls as its singular fluid counterpart CFD \citep{sofcf} with the addition of element distortion.\\\\
+\newline
+\noindent
+A pile-scale simulation will require concrete simulated to undergo large deformation, particularly with reference to contact with reinforcement bars. Due to the nature of FEM, when the material represented becomes distorted, elongation of elements can occur. This extreme elongation yields inefficacy and inaccuracies \citep{moresi03}. \\
+\newline
+\noindent
+Particle based methods offer an attempt to mitigate element based problems, simulating the material as a granular media, rather than a continuum body. Depending on mix design, concrete is potentially controlled by granular like behaviour; making it necessary to investigate DEM. In DEM, calculations of Newtons Second Law with respect to the particles and the force displacement law take place at the contact point between two particles. According to \cite{roussel07} this offers a disadvantage, as the true nature of these contacts can never truly be known. Despite \citet{roussel16} advising that slump-flow results from DEM are comparative to CFD and FEM, \citet{roussel06} advises that due to both computational complexity and scaling issues, DEM may not be viable in pile-scale simulations.\\
+\newline
+\noindent
+\citet{ALYHYA17} offers a promising review of a particle method in the form of SPH (smoothed particle hydrodynamics). With early results indicating there may be a potential for future work to produce compelling results. There are however similar pitfalls to DEM, when scaling and complexity become an issue. \\
+\newline
+\noindent
+An attempt to bridge the gap between single fluid and granular representation is presented by \citet{roussel07} in the form of the early work conducted by \citet{moresi03}. Centralised on the Material Point Method devised by \citet{sulsky94}, concrete is represented as particles suspended in a fluid. Although not directly MPM, the Finite Element Method with Lagrangian Integration Points (FEMLIP) offered the closest representation of a Bingham fluid \citep{sofcf} and promising slump-flow results \citep{moresi03,dufour05}.\\
+\newline
+\noindent
+To summarise, although single fluid and granular representation of concrete are adequate at modelling concrete, they are not optimum. Progressing with a method capable of simulating a multi-phase material (MPM) has the potential to supplant these more established methods, providing a greater insight into the tremie process.
+
 \section{Numerical Modelling}
-\subsection{Modelling Method Comparisons}
 \subsection{MPM Background}
+The Material Point Method \citep{sulsky94,sulsky95} involves a continuum body discretised into a finite set of points with deformations governed by Newtons Laws of Motion. It combines the Lagrangian approach of tracking points with the Eularian approach of maintaining a background grid on which the momentum equation of the point is calculated. This is in contrast to other mesh-less methods, wherein the equations of motion are solved on the points themselves ( KRISHNA and SAMILA REFERENCE).
+\subsection{Governing Equations}
+The governing equations are standard conservation equations for mass and momentum,
+\begin{equation}
+\frac{d\rho}{dt} + \rho\nabla\cdot v = 0
+\label{eq:mass}
+\end{equation}
+\begin{equation}
+\rho a = \nabla\cdot\sigma + \rho b
+\label{eq:momentum}
+\end{equation}
+Let $\rho(x,t)$ represent the mass density of a point at location vector $x$ and time $t$ such that $v(x,t)$ represents the velocity, $a(x,t)$ the acceleration, $\sigma(x,t)$ Cauchy's stress tensor and $b(x,t)$ the body force.\\
+\newline
+\noindent
+To obtain the weak form of the equation, {\bfseries \ref{eq:momentum}} is multiplied by weight function $w$ and integrated over boundary $\Omega$ to give,
+\begin{equation}
+\int_\Omega \rho w \cdot ad\Omega = \int_\Omega w\nabla\cdot\sigma d\Omega + \int_\Omega \rho w b d\Omega
+\label{eq:weightfunction1}
+\end{equation}
+After integration by parts, the central term of {\bfseries \ref{eq:weightfunction1}} becomes,
+\begin{equation}
+\int_\Omega w\nabla\cdot\sigma d\Omega= \int_\Omega\nabla\cdot (w\sigma) d\Omega- \int_\Omega w\cdot\sigma d\Omega
+\label{eq:integrationbyparts2}
+\end{equation}
+where the central term of {\bfseries \ref{eq:integrationbyparts2}}
+\begin{equation}
+\int_\Omega\nabla\cdot (w\sigma) d\Omega= \int_{\partial\Omega} w \sigma \cdot n dS
+\label{eq:divergence}
+\end{equation}
+because of the divergence theorem. \\\\The right hand side of {\bfseries \ref{eq:divergence}} represents the boundary term such that,
+\begin{equation}
+\int_{\partial\Omega} w \sigma \cdot n dS = \int_{\partial\Omega_t} w\sigma\cdot n dS + \int_{\partial\Omega_u} w\sigma\cdot n dS
+\label{eq:boundary1}
+\end{equation}
+but owing to Nueman boundary conditions
+\begin{equation}
+\sigma(x,t)\cdot n = \tau(t) \text{ on } \partial\Omega_t
+\label{eq:neumen}
+\end{equation}
+and test function $w$ being zero on Direchlet boundary $\partial\Omega_u$, {\bfseries \ref{eq:boundary1}} becomes
+\begin{equation}
+\int_{\partial\Omega} w \sigma \cdot n dS = \int_{\partial\Omega_t} w\cdot\tau  dS
+\label{eq:substitute}
+\end{equation}
+where $\tau$ represents surface traction.\\\\
+Substituting {\bfseries \ref{eq:substitute}} into {\bfseries \ref{eq:integrationbyparts2}} gives
+\begin{equation}
+\int_\Omega w\nabla\cdot\sigma d\Omega= \int_{\partial\Omega_t} w\cdot\tau dS - \int_\Omega w\cdot\sigma d\Omega
+\label{eq:substitute2}
+\end{equation}
+and substituting  {\bfseries \ref{eq:substitute2}} into {\bfseries \ref{eq:weightfunction1}} gives the final weak form of the equation of motion:
+
+\begin{equation}
+\int_\Omega \rho w \cdot ad\Omega =  \int_{\partial\Omega_t} w\cdot\tau dS - \int_\Omega w\cdot\sigma d\Omega + \int_\Omega \rho w b d\Omega
+\label{eq:weakform}
+\end{equation}
+
+
+
 \subsection{MPM Limitations}
 \section{Summary}
