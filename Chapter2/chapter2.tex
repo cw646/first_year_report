@@ -82,36 +82,39 @@ To summarise, although single fluid and granular representation of concrete are 
 
 \section{Numerical Modelling}
 \subsection{MPM Background}
-The Material Point Method \citep{sulsky94,sulsky95} involves a continuum body discretised into a finite set of points with deformations governed by Newtons Laws of Motion. It combines the Lagrangian approach of tracking points with the Eularian approach of maintaining a background grid on which the momentum equation of the point is calculated. This is in contrast to other mesh-less methods, wherein the equations of motion are solved on the points themselves ( KRISHNA and SAMILA REFERENCE).
+The Material Point Method \citep{sulsky94,sulsky95} involves a continuum body discretised into a finite set of points with deformations governed by Newtons Laws of Motion. It combines the Lagrangian approach of tracking points with the Eularian approach of maintaining a background grid on which the momentum equation of the point is calculated. This is in contrast to other mesh-less methods, wherein the equations of motion are solved on the points themselves ( KRISHNA and SAMILA REFERENCE)
 \subsection{Governing Equations}
 The governing equations are standard conservation equations for mass and momentum,
 \begin{equation}
-\frac{d\rho}{dt} + \rho\nabla\cdot v = 0
+\frac{d\rho}{dt} + \rho\nabla\cdot \mathbf{v} = 0
 \label{eq:mass}
 \end{equation}
 \begin{equation}
-\rho a = \nabla\cdot\sigma + \rho b
+\rho a = \nabla\cdot\mathbf{\sigma} + \rho b
 \label{eq:momentum}
 \end{equation}
-Let $\rho(x,t)$ represent the mass density of a point at location vector $x$ and time $t$ such that $v(x,t)$ represents the velocity, $a(x,t)$ the acceleration, $\sigma(x,t)$ Cauchy's stress tensor and $b(x,t)$ the body force.\\
+Let $\rho(\mathbf{x},t)$ represent the mass density of a point at location vector $\mathbf{x}$ and time $t$ such that $v(\mathbf{x},t)$ represents the velocity, $a(\mathbf{x},t)$ the acceleration, $\sigma(\mathbf{x},t)$ Cauchy's stress tensor and $b(\mathbf{x},t)$ the body force.\\
 \newline
 \noindent
-To obtain the weak form of the equation, {\bfseries \ref{eq:momentum}} is multiplied by weight function $w$ and integrated over boundary $\Omega$ to give,
+Consider the finite number of points the continuum is divided into, to be represented by $n_p$. Let $\mathbf{x}_p^t$ represent the current position of point $p$ at time $t$ where $p=(1,2,...n_p)$. Each point at any given time will have an associated mass $m_p^t$, density $\rho_p^t$, velocity $\mathbf{v}_p^t$, and stress and strain $\mathbf{\sigma}_p^t$ \& $\epsilon_p^t$ respectively, providing a Lagrangian description of the body. Any parameters required by the chosen constitutive model, are also included. The values contained within the points are mapped onto the element nodes of the element they currently reside in.\\
+\newline
+\noindent
+To obtain the discrete form of the equation, {\bfseries \ref{eq:momentum}} is multiplied by weight function $w$ and integrated over boundary $\Omega$ to give,
 \begin{equation}
 \int_\Omega \rho w \cdot ad\Omega = \int_\Omega w\nabla\cdot\sigma d\Omega + \int_\Omega \rho w b d\Omega
 \label{eq:weightfunction1}
 \end{equation}
 After integration by parts, the central term of {\bfseries \ref{eq:weightfunction1}} becomes,
 \begin{equation}
-\int_\Omega w\nabla\cdot\sigma d\Omega= \int_\Omega\nabla\cdot (w\sigma) d\Omega- \int_\Omega w\cdot\sigma d\Omega
+\int_\Omega w\nabla\cdot\sigma d\Omega= \int_\Omega\nabla\cdot (w\sigma) d\Omega- \int_\Omega \nabla w\cdot\sigma d\Omega
 \label{eq:integrationbyparts2}
 \end{equation}
-where the central term of {\bfseries \ref{eq:integrationbyparts2}}
+where the central term of {\bfseries \ref{eq:integrationbyparts2}} becomes
 \begin{equation}
 \int_\Omega\nabla\cdot (w\sigma) d\Omega= \int_{\partial\Omega} w \sigma \cdot n dS
 \label{eq:divergence}
 \end{equation}
-because of the divergence theorem. \\\\The right hand side of {\bfseries \ref{eq:divergence}} represents the boundary term such that,
+because of the divergence theorem. $n$ represents the normal to the boundary.\\\\The right hand side of {\bfseries \ref{eq:divergence}} represents the boundary term such that,
 \begin{equation}
 \int_{\partial\Omega} w \sigma \cdot n dS = \int_{\partial\Omega_t} w\sigma\cdot n dS + \int_{\partial\Omega_u} w\sigma\cdot n dS
 \label{eq:boundary1}
@@ -129,17 +132,75 @@ and test function $w$ being zero on Direchlet boundary $\partial\Omega_u$, {\bfs
 where $\tau$ represents surface traction.\\\\
 Substituting {\bfseries \ref{eq:substitute}} into {\bfseries \ref{eq:integrationbyparts2}} gives
 \begin{equation}
-\int_\Omega w\nabla\cdot\sigma d\Omega= \int_{\partial\Omega_t} w\cdot\tau dS - \int_\Omega w\cdot\sigma d\Omega
+\int_\Omega w\nabla\cdot\sigma d\Omega= \int_{\partial\Omega_t} w\cdot\tau dS - \int_\Omega \nabla w\cdot\sigma d\Omega
 \label{eq:substitute2}
 \end{equation}
 and substituting  {\bfseries \ref{eq:substitute2}} into {\bfseries \ref{eq:weightfunction1}} gives the final weak form of the equation of motion:
 
 \begin{equation}
-\int_\Omega \rho w \cdot ad\Omega =  \int_{\partial\Omega_t} w\cdot\tau dS - \int_\Omega w\cdot\sigma d\Omega + \int_\Omega \rho w b d\Omega
+\int_\Omega \rho w \cdot ad\Omega =  \int_{\partial\Omega_t} w\cdot\tau dS - \int_\Omega \nabla w\cdot\rho\sigma^s d\Omega + \int_\Omega \rho w b d\Omega
 \label{eq:weakform}
 \end{equation}
+Where $\rho\sigma^s$ represents the the specific stress ($\sigma^s = \sigma / \rho$) necessary for the derivation of discrete equations, and $dS$ and $d\Omega$ represent surface and volume differential respectively. {\bfseries \ref{eq:mass}} is automatically satisfied as material points have a fixed mass at all times.\\
+\newline
+\noindent
+As the material is discretised into points, the mass density can be written as
+\begin{equation}
+\rho(\mathbf{x},t) = \sum_{p=1}^{n_p} m_p \delta(\mathbf{x-x}_p^t)
+\label{eq:dirac}
+\end{equation}
+Where $\delta$ represent the Dirac delta function.\\
+\newline
+\noindent
+Substituting {\bfseries \ref{eq:dirac}} into {\bfseries \ref{eq:weakform}} converts integrals to sums of quantities evaluated at material points, giving
+\begin{equation}
+\begin{aligned}
+\sum_{p=1}^{n_p} m_p [w(\mathbf{x}_p^t,t)\cdot \mathbf{a}(\mathbf{x}_p^t,t)] = \sum_{p=1}^{n_p} m_p [-\sigma^s (\mathbf{x}_p^t,t)\nabla w \rvert_{\mathbf{x}_p^t}\\  + w(\mathbf{x}_p^t,t) \cdot \tau^s(\mathbf{x}_p^t,t)h^{-1} + w(\mathbf{x}_p^t,t) \cdot b(\mathbf{x}_p^t,t)]
+\label{eq:sum1}
+\end{aligned}
+\end{equation}
+where $h$ is the thickness of the boundary layer upon which the traction boundary conditions are enforced.\\
+\newline
+\noindent
+Continuing discretisation, the coordinates of any material point located within an element of the background mesh can be represented as
+\begin{equation}
+\mathbf{x}_p^t = \sum_{i=1}^{n_n} \mathbf{x}_i^t N_i(\mathbf{x}_p^t)
+\label{eq:shapefunction}
+\end{equation}
+where spacial nodes are represented as $\mathbf{x}_i^t$ such that node number $i = (1,2...n_n)$ with $n_n$ representing the number of nodes in the element. The element shape determined by background mesh governs the applied basis function $N_i$ similar to a finite element implementation. Velocity and acceleration also have a similar representation,
+\begin{equation}
+\mathbf{v}_p^t = \sum_{i=1}^{n_n} \mathbf{v}_i^t N_i(\mathbf{x}_p^t)
+\label{eq:velocity}
+\end{equation}
+\begin{equation}
+\mathbf{a}_p^t = \sum_{i=1}^{n_n} \mathbf{a}_i^t N_i(\mathbf{x}_p^t)
+\label{eq:acceleration}
+\end{equation}
+as does the weight function
+\begin{equation}
+\mathbf{w}_p^t = \sum_{i=1}^{n_n} \mathbf{w}_i^t N_i(\mathbf{x}_p^t)
+\label{eq:weight}
+\end{equation}
+Substituting {\bfseries \ref{eq:acceleration}} and {\bfseries \ref{eq:weight}} into {\bfseries \ref{eq:sum1}} and evaluating at time $t$ gives
+\begin{equation}
+\begin{aligned}
+\sum_{i=1}^{n_n}w_i^t \cdot \sum_{j=1}^{n_n}m_{ij}^t \mathbf{a}_j^t = -\sum_{i=1}^{n_n} w_i^t \cdot \sum_{p=1}^{n_p} m_p \sigma_p^{s,t} \cdot \nabla N_i(\mathbf{x}) \rvert_{\mathbf{x} = \mathbf{x}_p^t} \\ + \sum_{i=1}^{n_n}w_i^t \cdot \sum_{p=1}^{n_p} m_p N_i(\mathbf{x}_p^t)\tau_p^{s,t} h-1 + \sum_{i=1}^{n_n}w_i^t \cdot \mathbf{b}_i^t
+\label{eq:sum2}
+\end{aligned}
+\end{equation}
+{\bfseries \ref{eq:sum1}} includes the addition of nodal mass matrix $m_{ij}^t$, 
+\begin{equation}
+m_{ij}^t = \sum_{p=1}^{n_p} m_p N_i(\mathbf{x}_p^t)N_j(\mathbf{x}_p^t)
+\label{eq:massmatrix}
+\end{equation}
+and the specific stress at a point represented by
+\begin{equation}
+\label{eq:specstress}
+\sigma_p^{s,t} = \sigma^s(\mathbf{x}_p^t,t)
+\end{equation}
+{\bfseries \ref{eq:sum2}} can be further reduced to
+\begin{equation}
+\label{eq:reduced1}
+\sum_{j=1}^{n_n} m_{ij}^t\mathbf{a}_j^t = \mathbf{f}_i^{int,t} + \mathbf{f}_i^{ext,t}
+\end{equation}
 
-
-
-\subsection{MPM Limitations}
-\section{Summary}
